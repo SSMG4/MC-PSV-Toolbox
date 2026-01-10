@@ -173,18 +173,16 @@ body.white-mode .input {
 }
 
 .output {
-  font-size: 12px;
-  width: 99%;
-  height: 200px;
-  resize: none;
-  box-sizing: border-box;
-  border: 1px solid #26272a;
-  border-radius: 4px;
-  padding: 4px 8px;
-  color: #222222;
-  background-color: #e0e0e0;
-  pointer-events: none;
-  margin-top: 20px;
+    font-size: 12px;
+    width: 99%;
+    height: 200px;
+    resize: none;
+    box-sizing: border-box;
+    border: 1px solid #26272a;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin-top: 20px;
+    pointer-events: auto; 
 }
 
 body.black-mode .output,
@@ -296,6 +294,16 @@ button:nth-child(3) {
   width: 300px;
 }
 
+.language-dropdown {
+    background-color: #282c34;
+    color: #ffffff;
+    border: 1px solid #444;
+}
+
+body.white-mode .language-dropdown {
+    background-color: #f7f7f7;
+    color: #1e1e1e;
+}
 
 
 
