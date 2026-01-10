@@ -72,28 +72,44 @@ function button1_Click() {
     output.value = "_V0 " + label + "\n" + resultLines.join("\n");
 }
 
+// --- Updated Save Logic ---
 async function button3_Click() {
-    const content = document.getElementById('textBox2').value;
-    const saveName = (document.getElementById('savefile').value || "cheat") + ".psv";
+    const output = document.getElementById("textBox2");
+    const saveNameInput = document.getElementById("savefile");
+    const selectedOption = saveNameInput.options[saveNameInput.selectedIndex].value;
+    
+    const fileName = selectedOption + ".psv";
+    const fileContent = "#" + selectedOption + "\n\n" + output.value;
 
-    // Since you are on GitHub Pages (HTTPS), this triggers the folder selection!
+    // Direct check for the File System Access API
     if (window.showSaveFilePicker) {
         try {
             const handle = await window.showSaveFilePicker({
-                suggestedName: saveName,
-                types: [{ description: 'PSV File', accept: {'text/plain': ['.psv']} }]
+                suggestedName: fileName,
+                types: [{
+                    description: 'PSV Files',
+                    accept: {'text/plain': ['.psv']},
+                }],
             });
             const writable = await handle.createWritable();
-            await writable.write(content);
+            await writable.write(fileContent);
             await writable.close();
-        } catch (err) { console.log("Save cancelled"); }
-    } else {
-        // Simple download fallback for old browsers
-        var blob = new Blob([content], { type: "text/plain" });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement("a");
-        a.href = url; a.download = saveName; a.click();
+            return; // Success!
+        } catch (err) {
+            console.log("Save cancelled or blocked:", err);
+            // If the user cancels, we stop. If it's an error, we try the fallback.
+            if (err.name === 'AbortError') return;
+        }
     }
+
+    // Fallback: Standard Download (Used if the picker is blocked or unsupported)
+    const blob = new Blob([fileContent], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
 }
 
 function button2_Click() {
@@ -207,6 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resultadoTexto.value = codeBlock;
     });
 });
+
 
 
 
