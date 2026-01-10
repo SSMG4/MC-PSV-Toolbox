@@ -42,67 +42,57 @@ function changeLanguage() {
     buttons[0].innerText = b1; buttons[1].innerText = b2; buttons[2].innerText = b3; buttons[3].innerText = b4;
 }
 
-// --- ID Changer Logic (UTF-8 Little Endian Fix) ---
 function button1_Click() {
     var baseAddress = 0x8234628D;
     var customID = document.getElementById('textBox1').value;
     var label = document.getElementById('textBox3').value || "CustomID";
     var output = document.getElementById('textBox2');
 
-    // Convert string to UTF-8 bytes (correctly handles § and Japanese)
     var encoder = new TextEncoder();
     var bytes = Array.from(encoder.encode(customID));
-    
-    // The Vita needs a null terminator to know where the name ends
-    bytes.push(0);
+    bytes.push(0); // Always add the null terminator
 
     var resultLines = [];
-    // We process the bytes in chunks of 4 (one $0200 line = 4 bytes)
     for (var i = 0; i < bytes.length; i += 4) {
         var chunk = bytes.slice(i, i + 4);
-        
-        // Pad the chunk with 00s if it's less than 4 bytes
-        while (chunk.length < 4) {
-            chunk.push(0);
-        }
+        while (chunk.length < 4) chunk.push(0);
 
-        // Little Endian Flip: [B1, B2, B3, B4] -> B4B3B2B1
         var hexValue = chunk.reverse().map(b => b.toString(16).toUpperCase().padStart(2, '0')).join('');
-        
-        // Calculate the hex address for this specific block
         var currentAddress = (baseAddress + i).toString(16).toUpperCase();
-        
         resultLines.push("$0200 " + currentAddress + " " + hexValue);
-
-        // Safety break to prevent overwriting critical memory (limit to 6 lines max)
-        if (i >= 20) break; 
     }
 
-    // Join with newlines and add the label header
+    if (resultLines.length > 1) {
+        var lastLine = resultLines[resultLines.length - 1];
+        if (lastLine.endsWith("00000000")) {
+            resultLines.pop();
+        }
+    }
+
     output.value = "_V0 " + label + "\n" + resultLines.join("\n");
 }
 
-// --- Improved Save Method (Save File Picker) ---
 async function button3_Click() {
-    const content = `#${document.getElementById('savefile').value}\n\n${document.getElementById('textBox2').value}`;
-    const fileName = `${document.getElementById('savefile').value}.psv`;
+    const content = document.getElementById('textBox2').value;
+    const saveName = (document.getElementById('savefile').value || "cheat") + ".psv";
 
-    if ('showSaveFilePicker' in window) {
+    // Since you are on GitHub Pages (HTTPS), this triggers the folder selection!
+    if (window.showSaveFilePicker) {
         try {
             const handle = await window.showSaveFilePicker({
-                suggestedName: fileName,
-                types: [{ description: 'VitaCheat File', accept: { 'text/plain': ['.psv'] } }],
+                suggestedName: saveName,
+                types: [{ description: 'PSV File', accept: {'text/plain': ['.psv']} }]
             });
             const writable = await handle.createWritable();
             await writable.write(content);
             await writable.close();
-        } catch (err) { console.log("Save cancelled or failed"); }
+        } catch (err) { console.log("Save cancelled"); }
     } else {
-        // Fallback for older browsers
-        const blob = new Blob([content], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url; a.download = fileName; a.click();
+        // Simple download fallback for old browsers
+        var blob = new Blob([content], { type: "text/plain" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = saveName; a.click();
     }
 }
 
@@ -217,6 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resultadoTexto.value = codeBlock;
     });
 });
+
 
 
 
