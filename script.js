@@ -44,28 +44,42 @@ function changeLanguage() {
 
 // --- ID Changer Logic (UTF-8 Little Endian Fix) ---
 function button1_Click() {
-    const baseAddress = 0x8234628D;
-    const customID = document.getElementById('textBox1').value;
-    const label = document.getElementById('textBox3').value || "CustomID";
-    
-    const encoder = new TextEncoder();
-    let bytes = Array.from(encoder.encode(customID));
-    bytes.push(0); // Null terminator
+    var baseAddress = 0x8234628D;
+    var customID = document.getElementById('textBox1').value;
+    var label = document.getElementById('textBox3').value || "CustomID";
+    var output = document.getElementById('textBox2');
 
-    let resultLines = [];
-    for (let i = 0; i < bytes.length; i += 4) {
-        let chunk = bytes.slice(i, i + 4);
-        while (chunk.length < 4) chunk.push(0);
+    // Convert string to UTF-8 bytes (correctly handles § and Japanese)
+    var encoder = new TextEncoder();
+    var bytes = Array.from(encoder.encode(customID));
+    
+    // The Vita needs a null terminator to know where the name ends
+    bytes.push(0);
+
+    var resultLines = [];
+    // We process the bytes in chunks of 4 (one $0200 line = 4 bytes)
+    for (var i = 0; i < bytes.length; i += 4) {
+        var chunk = bytes.slice(i, i + 4);
         
-        // Reverse for Little Endian $0200 format
-        let hexValue = chunk.reverse().map(b => b.toString(16).toUpperCase().padStart(2, '0')).join('');
-        let currentAddr = (baseAddress + i).toString(16).toUpperCase();
-        resultLines.push(`$0200 ${currentAddr} ${hexValue}`);
+        // Pad the chunk with 00s if it's less than 4 bytes
+        while (chunk.length < 4) {
+            chunk.push(0);
+        }
+
+        // Little Endian Flip: [B1, B2, B3, B4] -> B4B3B2B1
+        var hexValue = chunk.reverse().map(b => b.toString(16).toUpperCase().padStart(2, '0')).join('');
         
-        if (i >= 24) break; // Memory limit safety
+        // Calculate the hex address for this specific block
+        var currentAddress = (baseAddress + i).toString(16).toUpperCase();
+        
+        resultLines.push("$0200 " + currentAddress + " " + hexValue);
+
+        // Safety break to prevent overwriting critical memory (limit to 6 lines max)
+        if (i >= 20) break; 
     }
 
-    document.getElementById('textBox2').value = `_V0 ${label}\n${resultLines.join("\n")}`;
+    // Join with newlines and add the label header
+    output.value = "_V0 " + label + "\n" + resultLines.join("\n");
 }
 
 // --- Improved Save Method (Save File Picker) ---
@@ -203,6 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resultadoTexto.value = codeBlock;
     });
 });
+
 
 
 
