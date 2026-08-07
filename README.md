@@ -1,10 +1,10 @@
 <div align="center">
 <img src="https://github.com/SSMG4/Minecraft-PlayStation-Vita-Toolbox/blob/master/icon.png" alt="MPSVT width="100" height="100"/>
-</div>
-<h1 align="center"> Minecraft-PlayStation-Vita-Toolbox</h1>
-<div align="center">
-A toolbox for Minecraft PS Vita made by r3versee. This toolbox has been dead for a while now and it would be a bummer to leave it here!
 
+<h1 align="center"> Minecraft-PlayStation-Vita-Toolbox</h1>
+A toolbox for Minecraft PS Vita originally made by r3versee.
+</div>
+  
 ## Main Features
 Both features use the [Vitacheat](https://github.com/r0ah/vitacheat) plugin by [r0ah](https://github.com/r0ah)
 ### PlayStation Network ID Changer:
@@ -27,4 +27,4 @@ If you wanna see the original project, click [here](https://github.com/r3versee/
 
 I am gonna try and keep it updated while also trying to add new features and better stuff but i cant guarentee anything.
 
->&copy; 2025 r3verse & SSMG4. All Rights Reserved.
+>&copy; 2026 r3verse & SSMG4. All Rights Reserved.
